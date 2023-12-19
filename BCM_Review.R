@@ -7,9 +7,10 @@
 #setup
 setwd("~/Documents/McCoy Lab/Review Paper")
 library(dplyr)
-library(ggplot2)
+library(ggplot2); packageVersion("ggplot2")
 library(RColorBrewer)
-library(ggpubr)
+library(ggpubr); packageVersion("ggpubr")
+library(viridis); packageVersion("viridis")
 
 #loading data in
 rev <- read.csv("Review_Paper_All_Papers_Final.csv", header = TRUE)
@@ -55,12 +56,12 @@ ggsave(plot=pr.time.plot,file="publications_relevant_time.pdf")
 all.time.plot <- rev %>% ggplot(aes(x=year)) +
   theme_classic(base_size = 25)+
   geom_histogram(bins = 59, fill="lightblue4")+
-  theme(axis.text.x = element_text(color = "black"))+
+  theme(axis.text.x = element_text(color = "black"), axis.text.y = element_text(color="black"))+
   xlab("Year")+
   ylab("Publications")+
   scale_x_continuous(breaks = scales::pretty_breaks(n = 6))
 all.time.plot
-#ggsave(plot=all.time.plot,file="all_publications_time.png")
+ggsave(plot=all.time.plot,file="all_publications_time.png")
 
 #environmental count data prep
 envt.counts <- rev.pr %>%
@@ -74,16 +75,18 @@ envt.counts$environment_type <- row.names(envt.counts)
 envt.counts$mat = "mat"
 
 #environmental bar plot
-envt.bar <- ggplot(envt.counts,aes(x=environment_type,y=counts,fill=environment_type))+
+envt.bar <- ggplot(envt.counts, aes(y=factor(environment_type, level = c('lab', 'terrestrial', 'geologic', 'acid', 'cold', 'hot', 'freshwater', 'brackish', 'marine', 'hypersaline')), x=counts,fill=environment_type))+
   geom_col(show.legend = FALSE)+
   theme_classic(base_size = 25)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.4,color = "black"))+
+  theme(axis.text.y = element_text(hjust = 0.95, vjust = 0.4,color = "black"), axis.text.x = element_text(color="black"))+
   #scale_fill_brewer(palette = "RdYlBu")+
-  scale_fill_viridis(option = "C",discrete = TRUE)+
-  ylab("Publications")+
-  xlab("Environment Type")
+  xlab("Publications")+
+  ylab("Environment Type")
+envt.bar <- envt.bar + 
+  scale_fill_viridis(option = "C", discrete = TRUE, limits = c('lab', 'terrestrial', 'geologic', 'acid', 'cold', 'hot', 'freshwater', 'brackish', 'marine', 'hypersaline')) +
+  scale_y_discrete(label = c('Lab', 'Terrestrial', 'Geologic', 'Acid', 'Cold', 'Hot', 'Freshwater', 'Brackish', 'Marine', 'Hypersaline'))
 envt.bar
-ggsave(plot = envt.bar, filename = "environment_bar.pdf")
+#ggsave(plot = envt.bar, filename = "environment_bar.pdf")
 
 #testing to see if I want to do stacked bar plots instead
 # envt.stack <- ggplot(envt.counts,aes(x=mat,y=relative_counts,fill=environment_type))+
@@ -107,15 +110,17 @@ nut.counts$environment_type <- row.names(nut.counts)
 nut.counts$mat = "mat"
 
 #nutrient bar graph
-nut.bar <- ggplot(nut.counts,aes(x=environment_type,y=counts,fill=environment_type))+
+nut.bar <- ggplot(nut.counts,aes(y=factor(environment_type, level = c('cooperation', 'anoxic', 'oxic', 'toxins', 'lithification', 'metal', 'iron', 'sulfur', 'methane', 'phosphorus', 'nitrogen', 'heterotrophy', 'photosynthesis')),x=counts,fill=environment_type))+
   geom_col(show.legend = FALSE)+
   theme_classic(base_size = 25)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.4,color = "black"))+
-  scale_fill_viridis(option = "C",discrete = TRUE)+
-  ylab("Publications")+
-  xlab("Nutrient Cycling Component")
+  theme(axis.text.y = element_text(hjust = 0.95, vjust = 0.4,color = "black"), axis.text.x = element_text(color="black"))+
+  xlab("Publications")+
+  ylab("Nutrient Cycling")
+nut.bar <- nut.bar + 
+  scale_fill_viridis(option = "C", discrete = TRUE, limits = c('cooperation', 'anoxic', 'oxic', 'toxins', 'lithification', 'metal', 'iron', 'sulfur', 'methane', 'phosphorus', 'nitrogen', 'heterotrophy', 'photosynthesis')) +
+  scale_y_discrete(label = c("Cooperative Processes", "Anoxic Processes", "Oxic Processes", "Toxin Production", "Lithification", "Other Metal Cycling", "Iron Cycling", "Sulfur Cycling", "Methane Cycling", "Phosphorus Cycling", "Nitrogen Cycling", "Heterotrophy", "Photosynthesis"))
 nut.bar
-ggsave(plot = nut.bar, filename = "nutrients_bar.pdf")
+#ggsave(plot = nut.bar, filename = "nutrients_bar.pdf")
 
 #misc count data prep
 misc.counts <- rev.pr %>%
@@ -129,18 +134,19 @@ misc.counts$misc_type <- row.names(misc.counts)
 misc.counts$mat = "mat"
 
 #misc bar plot
-misc.bar <- ggplot(misc.counts,aes(x=misc_type,y=counts,fill=misc_type))+
+misc.bar <- ggplot(misc.counts,aes(y=factor(misc_type, level = c('not_mats', 'singular', 'boundary_layers', 'health', 'anthropogenic', 'climate_change', 'disturbance_grazing', 'virus', 'trophic')),x=counts,fill=misc_type))+
   geom_col(show.legend = FALSE)+
   theme_classic(base_size = 25)+
-  theme(axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.4,color = "black"))+
+  theme(axis.text.y = element_text(hjust = 0.95, vjust = 0.4,color = "black"), axis.text.x = element_text(color="black"))+
   #scale_fill_brewer(palette="BuPu")+
-  scale_fill_viridis(option = "C",discrete = TRUE)+
-  ylab("Publications")+
-  xlab("Additional Factors")
+  xlab("Publications")+
+  ylab("Additional Factors")
+misc.bar <- misc.bar + scale_fill_viridis(option = "C",discrete = TRUE, limits = c('not_mats', 'singular', 'boundary_layers', 'health', 'anthropogenic', 'climate_change', 'disturbance_grazing', 'virus', 'trophic'))+
+  scale_y_discrete(label = c("Not BCMs", "Singular Microbes", "Boundary Layers", "Health Impacts", "Anthropogenic Impacts", "Climate Change", "Disturbance & Grazing", "Viruses", "Trophic Interactions"))
 misc.bar
 #ggsave(plot = misc.bar, filename = "misc_bar.pdf")
 
 #saving graphs in 4 panel plot
 gg.panel.all <- ggarrange(all.time.plot,envt.bar,nut.bar,misc.bar,nrow=2,ncol=2,labels=c("A","B","C","D"),font.label = list(size = 30))
 gg.panel.all
-ggsave(plot = gg.panel.all, filename = "4.panel.plot.all.png", w=13, h=12)
+ggsave(plot = gg.panel.all, filename = "4.panel.plot.all.png", w=13, h=10)
